@@ -28,8 +28,8 @@ names(PublishersOA)
 # If one of the OA types is missing, use the below code to add a new column that will fill in 0 for all the values in that column
 # Replace oatype in the second line with whichever OA type is missing: closed, diamond, gold, green, bronze, or hybrid
 # If more than one OA type is missing, just run the code again with the next OA type in place of where oatype is 
-PublishersOA <- PublishersOA %>% 
-  add_column(oatype = 0)
+#PublishersOA <- PublishersOA %>% 
+#  add_column(oatype = 0)
 
 # Once the table has all seven columns, we'll rename the columns 
 # so they're in Title Case and will display better in our visual
@@ -57,8 +57,8 @@ Percent_PublishersOA <- Articles_InstCorresponding %>%
 
 # Any column missing from the first table will also be missing in this table as well, so again if needed
 # rerun the below code, replacing oatype with whichever OA type you did above
-Percent_PublishersOA <- Percent_PublishersOA %>% 
-  add_column(oatype = "0.0%")
+#Percent_PublishersOA <- Percent_PublishersOA %>% 
+#  add_column(oatype = "0.0%")
 
 ##### Visuals ####
 
@@ -75,13 +75,6 @@ long_PublishersOA <- PublishersOAVisual %>%
                values_to = "Value") %>% 
   mutate(Publisher = forcats::fct_reorder(Publisher, Total, .desc = FALSE))
 
-# Run the below code to specify what color you want to use for each OA type in the grid
-# The code comes with an accessible color scheme, but you can change them out just putting in a different HTML color code for each one
-# Go to https://r-charts.com/color-palettes/ to find example color palettes
-# Hover over a color to find its HEX number
-# Can also exlore https://r-graph-gallery.com/color-palette-finder
-custom_colors <- c("Closed" = "#36638E", "Hybrid" = "#8B8E82", "Gold" = "#057BE7", "Diamond" = "#E95CCA", "Green" = "#B2C4DB")
-
 
 # And here we Create the stacked bar chart
 # This code involves three chunks that will also save the chart as a PNG in your Visuals folder in this project
@@ -93,9 +86,16 @@ png(filename = "Visuals/PublishedArticlesAll.png",
 ggplot(long_PublishersOA, aes(x = Publisher, y = Value, fill = Type)) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  scale_fill_manual(values = custom_colors) +
+  scale_fill_manual(values = c("Closed" = "#36638E", "Hybrid" = "#8B8E82", "Gold" = "#057BE7", "Diamond" = "#E95CCA", "Green" = "#B2C4DB")) + # See note below about changing colors
   labs(title = "",
        x = "",
        y = "") +
   theme_minimal()
 dev.off()
+
+
+# The code comes with an accessible color scheme, but you can change them out just putting in a different HTML color code for each one
+# Go to https://r-charts.com/color-palettes/ to find example color palettes
+# Hover over a color to find its HEX number
+# Can also explore https://r-graph-gallery.com/color-palette-finder
+# Just replace the Hex code in each of the colors on Line 90.

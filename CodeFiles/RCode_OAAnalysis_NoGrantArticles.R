@@ -80,12 +80,6 @@ long_PublishersOANoGrants <- PublishersOANoGrants %>%
                values_to = "Value") %>% 
   mutate(Publisher = forcats::fct_reorder(Publisher, Total, .desc = FALSE))
 
-# Run the below code to specify what color you want to use for each OA type in the grid
-# The code comes with an accessible color scheme, but you can change them out just putting in a different HTML color code for each one
-# Go to https://r-charts.com/color-palettes/ to find example color palettes
-# Hover over a color to find its HEX number
-# Cn also exlore https://r-graph-gallery.com/color-palette-finder
-custom_colors <- c("Closed" = "#36638E", "Hybrid" = "#8B8E82", "Gold" = "#057BE7", "Diamond" = "#E95CCA", "Green" = "#B2C4DB")
 
 
 # And here we Create the stacked bar chart
@@ -98,9 +92,14 @@ png(filename = "Visuals/PublishedArticlesNoGrants.png",
 ggplot(long_PublishersOANoGrants, aes(x = Publisher, y = Value, fill = Type)) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  scale_fill_manual(values = custom_colors) +
+  scale_fill_manual(values = c("Closed" = "#36638E", "Hybrid" = "#8B8E82", "Gold" = "#057BE7", "Diamond" = "#E95CCA", "Green" = "#B2C4DB")) + # See note below about changing colors
   labs(title = "",
        x = "",
        y = "") +
   theme_minimal()
 dev.off()
+
+# The code comes with an accessible color scheme, but you can change them out just putting in a different HTML color code for each one
+# Go to https://r-charts.com/color-palettes/ to find example color palettes
+# Hover over a color to find its HEX number
+# Cn also exlore https://r-graph-gallery.com/color-palette-finder
