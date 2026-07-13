@@ -1,12 +1,13 @@
 # hello
 
 # To download and interact with the data, we need certain instructions that don't come by default with R
-# So we have to first install two packages. The first, Tidyverse, is very well known and widely used. It offers
+# So we have to first install several packages. The first, Tidyverse, is very well known and widely used. It offers
 # a lot of functionality that will be useful in just about anything you do in R.
-# The second, openalexR, is specific to OpenAlex and allows us to download data through the OpenAlex API
+# Two others, janitor and here, will also provide helpful functionality
+# The final one, openalexR, is specific to OpenAlex and allows us to download data through the OpenAlex API
 # and then transform that data from a JSON format into something we can begin to manipulate in a more traditional
 # spreadsheet format.
-# Run the two lines of code below this comment section. You should only need to do this once, although periodically rerunning them
+# Run the lines of code below this comment section. You should only need to do this once, although periodically rerunning them
 # is good practice as updates will be made to the packages. It can be especially important for the 
 # openalexr package as the data in OpenAlex can change in major ways that mean old code no longer works.
 # If you're getting error messages when pulling data from the API, try reinstalling openalexR.
@@ -15,23 +16,21 @@
 install.packages("tidyverse")
 install.packages("janitor")
 install.packages("here")
+install.packages("openalexR")
 
-install.packages("remotes")
-remotes::install_github("ropensci/openalexR")
- install.packages("openalexR")
+# If you find you have problems at any point, reinstalling the above packages is a good starting point.
+# If you find you still have problems, one potential issue could be the openalexr package
+# In these cases, try running the following two lines of code to install it and the proceed to see if this fixes your issues.
+# (Remember to delete the hashtag before each line to run it!)
+#install.packages("remotes")
+#remotes::install_github("ropensci/openalexR")
 
-# We also need to create a directory subfolder that we'll save our work to. 
-# Again, you just need to run the next line of code once.
+
+# We also need to create two directory subfolders that we'll save our work to. 
+# Again, you just need to run the next two lines of code once.
 
 dir.create("Visuals")
-
-# Once you install the packages, you then need to call them to get them to actually work. You can do so by running
-# the next two lines of code. You'll need to do this each time you reopen RStudio.
-
-library(openalexR)
-library(tidyverse)
-library(janitor)
-library(here)
+dir.create("DataOutput")
 
 # Opens up the profile so you can tell OpenAlex you're a trusted party and it will handle your requests faster
 # Again, just run this line of code once.
@@ -44,19 +43,23 @@ file.edit("~/.Rprofile")
 
 options(openalexR.apikey = "API_Key_Here")
 
+# Once you install the packages, you then need to call them to get them to actually work. You can do so by running
+# the next two lines of code. You'll need to do this each time you reopen RStudio.
+
+library(openalexR)
+library(tidyverse)
+library(janitor)
+library(here)
+
 #### Pull and combine all works by people affiliated with a specific institution ####
 # This uses the openalexr package to pull data from the OAX API and turn it into what's known in R as a dataframe. 
 Inst_Works <- oa_fetch(    # This line of code should not change. 
   entity = "works",    # Type of record you want - replace "works" with another type if you want (leave the quotation marks). See the list of OAX entities for options: https://docs.openalex.org/api-entities/entities-overview
   authorships.institutions.ror = c("01keh0577"),   # Replace the ID in the quotation marks with the ROR ID you want (see https://ror.org/). If you want multiple, separate with a comma after the closing quotation mark.
-  from_publication_date = "2025-06-01", # If want to pull other years, just change the date range in this and the next lines of code.
-  to_publication_date = "2025-07-31",   # Make sure to keep it in YYYY-MM-DD format
+  from_publication_date = "2025-07-01", # If want to pull other years, just change the date range in this and the next lines of code.
+  to_publication_date = "2026-06-30",   # Make sure to keep it in YYYY-MM-DD format
   verbose = TRUE   # Do not change this
 )
-# The more data you try to pull from the API, the more problems can pop up, so it can help to break your pull into chunks
-# such as by using smaller date ranges.
-# After pulling one batch, save as an RDS file (see next), then change dates and pull again as needed
-# Make sure to save after each pull or change the name for the dataframe (Inst_Works) so you don't erase/lose a prior pull
 
 # The dataframes are not flat spreadsheets - they are nested, meaning we have tables within tables.
 # So we can't save them as a CSV file yet. We have to first save them as
@@ -65,22 +68,28 @@ Inst_Works <- oa_fetch(    # This line of code should not change.
 # The below code will create a saved file in the DataOutput subfolder of your project. Change the file name to anything you wish 
 # but make sure it begins with DataOutput/ and ends in .rds: "DataOutput/[FileNameHere].rds"
 
-write_rds(Inst_Works, "DataOutput/Inst_Works_2025_Summer_FSCI.rds")
-write_rds(Inst_Works, "DataOutput/Inst_Works_2025_Fall_FSCI.rds")
+write_rds(Inst_Works, "DataOutput/Inst_Works.rds")
 
-# Now read the file back in. If you had to pull data in chunks, read in each file with a different name
-# and then follow the next step.
-Inst_Works_2025_Summer_FSCI <- read_rds("DataOutput/Inst_Works_2025_Summer_FSCI.rds")
-Inst_Works_2025_Fall_FSCI <- read_rds("DataOutput/Inst_Works_2025_Fall_FSCI.rds")
+# If you are making large data pulls on the API, it can sometimes help to break it up into multiple batches
+# In this case, make one data pull, save it as shown on Line 75, then change your pull criteria, and save again under a new file name.
+
+#write_rds(Inst_Works, "DataOutput/Inst_Works_2026_Winter_FSCI.rds")
+#write_rds(Inst_Works, "DataOutput/Inst_Works_2025_Fall_FSCI.rds")
+
+# You would then read each file back in and then follow the next step. See below for an example.
+
+#Inst_Works_2025_Summer_FSCI <- read_rds("DataOutput/Inst_Works_2026_Winter_FSCI.rds")
+#Inst_Works_2025_Fall_FSCI <- read_rds("DataOutput/Inst_Works_2025_Fall_FSCI.rds")
 
 
-# If you pulled the data in by multiple batches, use this to combine (or bind) them into one dataframe
+# Once you've brought your multiple batches back in, use this to combine (or bind) them into one dataframe
 # You can add as many dataframes as you need, just separate with a comma after each one until the last one.
-Inst_Works <- bind_rows(Inst_Works_2025_Summer_FSCI, Inst_Works_2025_Fall_FSCI)
+# Make sure to change the names inside the parantheses to the names you gave your dataframes.
+#Inst_Works <- bind_rows(Inst_Works_2025_Summer_FSCI, Inst_Works_2025_Fall_FSCI)
 
 # Save this new dataframe so we do not have to repeat the above steps
 
-write_rds(Inst_Works, "DataOutput/Inst_Works.rds")
+#write_rds(Inst_Works, "DataOutput/Inst_Works.rds")
 
 
 
@@ -135,6 +144,7 @@ tabyl(Inst_Works$type)
 
 # Now create a subset of data that includes only journal articles
 # Notice we are using a new name - Inst_Articles - that will create a new dataframe instead of writing over the old one, Inst_Works
+# We'll also add a column indicating whether it was grant funded
 Inst_Articles <- Inst_Works %>% 
   filter(type == "article") %>% 
   mutate(has_grant = ifelse(is.na(funders) & is.na(awards), "N", "Y"))
@@ -287,7 +297,7 @@ Articles_InstAuthors <- Articles_InstAuthors %>%
   ungroup()
 
 # Save the list of all your institution's authors (even duplicates) as a csv file
-write.csv(Articles_InstAuthors, "DataOutput/Articles_InstAuthors.csv")
+write.csv(Articles_InstAuthors, "DataOutput/Articles_InstAuthors_CSV.csv")
 
 # Making sure we don't have duplicates because someone has multiple current affiliations
 # Should only see one value - your institution's
